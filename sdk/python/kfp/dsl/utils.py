@@ -137,8 +137,8 @@ def validate_pipeline_name(name: str) -> None:
 # the suffix-only form that Kubernetes reads as zero:
 # https://kubernetes.io/docs/reference/kubernetes-api/common-definitions/quantity/
 _RESOURCE_QUANTITY_PATTERN = re.compile(
-    r'^\+?(?:[0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)'
-    r'(?:Ki|Mi|Gi|Ti|Pi|Ei|[numkMGTPE]|[eE][+-]?[0-9]+)?$'
+    r'\+?(?:[0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)'
+    r'(?:Ki|Mi|Gi|Ti|Pi|Ei|[numkMGTPE]|[eE][+-]?[0-9]+)?'
 )
 
 
@@ -162,4 +162,4 @@ def normalize_resource_quantity(value: str) -> Optional[str]:
         return None
     if value.endswith('K'):
         value = value[:-1] + 'k'
-    return value if _RESOURCE_QUANTITY_PATTERN.match(value) else None
+    return value if _RESOURCE_QUANTITY_PATTERN.fullmatch(value) else None

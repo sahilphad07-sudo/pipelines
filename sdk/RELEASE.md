@@ -59,6 +59,10 @@
 
 ## Bug fixes and other changes
 
+* Fixed `set_cpu_limit` and `set_cpu_request` raising `TypeError` instead of `ValueError` for
+  non-string values, and fixed the cpu, memory and accelerator limit validators accepting values
+  with a trailing newline, such as `"2\n"` or `"1Gi\n"`.
+
 # 2.15.2
 
 ## Bug fixes and other changes

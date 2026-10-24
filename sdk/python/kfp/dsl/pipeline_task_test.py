@@ -287,6 +287,7 @@ class PipelineTaskTest(parameterized.TestCase):
         {'limit': 'abc'},
         {'limit': '1.5'},
         {'limit': '-1'},
+        {'limit': '1\n'},
     )
     def test_set_accelerator_limit_invalid(self, limit):
         task = pipeline_task.PipelineTask(
@@ -407,6 +408,58 @@ class PipelineTaskTest(parameterized.TestCase):
         {'memory': ''},
     )
     def test_set_memory_limit_invalid(self, memory: str):
+        task = pipeline_task.PipelineTask(
+            component_spec=structures.ComponentSpec.from_yaml_documents(
+                V2_YAML
+            ),
+            args={'input1': 'value'},
+        )
+        with self.assertRaisesRegex(ValueError, 'Invalid memory string'):
+            task.set_memory_limit(memory)
+        with self.assertRaisesRegex(ValueError, 'Invalid memory string'):
+            task.set_memory_request(memory)
+
+    @parameterized.parameters(
+        {'cpu': '2\n'},
+        {'cpu': '500m\n'},
+        {'cpu': ' 2'},
+        {'cpu': '2 '},
+        {'cpu': '-1'},
+        {'cpu': '1.5.2'},
+        {'cpu': ''},
+        {'cpu': 'm'},
+    )
+    def test_set_cpu_limit_invalid(self, cpu: str):
+        task = pipeline_task.PipelineTask(
+            component_spec=structures.ComponentSpec.from_yaml_documents(
+                V2_YAML
+            ),
+            args={'input1': 'value'},
+        )
+        with self.assertRaisesRegex(ValueError, 'Invalid cpu string'):
+            task.set_cpu_limit(cpu)
+        with self.assertRaisesRegex(ValueError, 'Invalid cpu string'):
+            task.set_cpu_request(cpu)
+
+    @parameterized.parameters(
+        {'cpu': 2}, {'cpu': 0.5}, {'cpu': None}, {'cpu': b'2'}
+    )
+    def test_set_cpu_limit_non_string_raises_value_error(self, cpu):
+        task = pipeline_task.PipelineTask(
+            component_spec=structures.ComponentSpec.from_yaml_documents(
+                V2_YAML
+            ),
+            args={'input1': 'value'},
+        )
+        with self.assertRaisesRegex(ValueError, 'Invalid cpu string'):
+            task.set_cpu_limit(cpu)
+        with self.assertRaisesRegex(ValueError, 'Invalid cpu string'):
+            task.set_cpu_request(cpu)
+
+    @parameterized.parameters(
+        {'memory': '1Gi\n'}, {'memory': '500Mi\n'}, {'memory': '1000\n'}
+    )
+    def test_set_memory_limit_rejects_trailing_newline(self, memory: str):
         task = pipeline_task.PipelineTask(
             component_spec=structures.ComponentSpec.from_yaml_documents(
                 V2_YAML
